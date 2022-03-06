@@ -7,34 +7,93 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <title>Kioks Page</title>
+    <title>Fun Kiosk Page</title>
     <script type="text/javascript">
-        setTimeout(function () {
-            location = ''
-        }, 30000);
         var assetList = [];
 
         var btcAsset = {
-            name: "BTC",
-            price: "$38,000"
+            name: "Bitcoin",
+            ticker: "BTC",
+            price: "38,000",
+            priceWentDown: false
         }
         assetList.push(btcAsset);
 
         var cornAsset = {
-            name: "CORN",
-            price: "$0.15"
+            name: "Corn",
+            ticker: "CORN",
+            price: "0.15",
+            priceWentDown: false
         }
         assetList.push(cornAsset);
 
-        setInterval(loopAsset, 1000);
-
+        setInterval(loopAsset, 10000);
         var currentAsset = 0;
         function loopAsset() {
             if (currentAsset > assetList.length - 1) { currentAsset = 0; }
             var asset = assetList[currentAsset];
             document.getElementById("assetName").innerHTML = asset.name;
             document.getElementById("assetPrice").innerHTML = asset.price;
+            if (asset.priceWentDown) {
+                document.getElementById("assetPrice").style.color = "red";
+            }
             currentAsset++;
+        }
+
+        setInterval(updateAssetPrices, 3600000); // 60 minutes
+        updateAssetPrices();
+        function updateAssetPrices() {
+            assetList.forEach(function (asset, i) {
+                updateAssetPriceFromGecko(asset, i);
+            });
+        }
+
+        function updateAssetPriceFromGecko(asset, assetIndex) {
+            var assetName = asset.name;
+            var uri = "https://api.coingecko.com/api/v3/simple/price?ids=" + assetName + "&vs_currencies=usd";
+            $.getJSON(uri, function (data) {
+                var newPrice = data[assetName.toLowerCase()]["usd"].toFixed(2);
+                if (assetList[assetIndex].price > newPrice) {
+                    assetList[assetIndex].priceWentDown = true;
+                } else {
+                    assetList[assetIndex].priceWentDown = false;
+                }
+                assetList[assetIndex].price = formatter.format(newPrice);
+            }).fail(function (dat, textStatus, error) {
+                var err = textStatus + ", " + error;
+                console.log(err);
+            });
+        }
+
+        var formatter = new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD',
+        });
+
+        var current_sha = "";
+        var new_sha = "";
+        setTimeout(function () {
+            if (current_sha != new_sha) {
+                location.reload(true);
+            }
+        }, 30000);
+
+        setInterval(checkForUpdate, 60000);
+        checkForUpdate();
+        function checkForUpdate() {
+            var uri = "https://api.github.com/repos/MudDev/rasp-kiosk/commits";
+            $.getJSON(uri, function (data) {
+                var latest_sha = data[0].sha;
+                if (current_sha == "") {
+                    current_sha = latest_sha;
+                    new_sha = latest_sha;
+                } else {
+                    new_sha = latest_sha;
+                }
+            }).fail(function (dat, textStatus, error) {
+                var err = textStatus + ", " + error;
+                console.log(err);
+            });
         }
     </script>
     <style>
@@ -42,19 +101,29 @@
             background-color: #000000;
         }
 
-        h3 {
+        #assetName {
             color: silver;
+            font-size: 50px;
+            padding-top: 40px;
         }
 
-        h2 {
+        #assetPrice {
             color: green;
+            font-size: 100px;
+            padding-top: 30px;
         }
     </style>
 </head>
 
 <body>
-    <h3 id="assetName" class="display-3">Test Asset</h3>
-    <h2 id="assetPrice" class="display-1">$10</h2>
+    <div>
+        <div with="100%" style="text-align: center;">
+            <h3 id="assetName" class="display-3">LOADING ...</h3>
+        </div>
+        <div with="100%" style="text-align: center;">
+            <h2 id="assetPrice" class="display-1"></h2>
+        </div>
+    </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
         crossorigin="anonymous"></script>
