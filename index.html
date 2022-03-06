@@ -74,7 +74,7 @@
         setInterval(checkForUpdate, 60000);
         checkForUpdate();
         function checkForUpdate() {
-            var uri = "https://api.github.com/repos/MudDev/rasp-kiosk/commits";
+            var uri = "https://api.github.com/repos/MudDev/rasp-kiosk/commits?per_page=1";
             $.getJSON(uri, function (data) {
                 var latest_sha = data[0].sha;
                 if (current_sha == "") {
