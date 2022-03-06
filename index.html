@@ -71,13 +71,6 @@
         });
 
         var current_sha = "";
-        var new_sha = "";
-        setTimeout(function () {
-            if (current_sha != new_sha) {
-                location.reload(true);
-            }
-        }, 30000);
-
         setInterval(checkForUpdate, 60000);
         checkForUpdate();
         function checkForUpdate() {
@@ -86,9 +79,11 @@
                 var latest_sha = data[0].sha;
                 if (current_sha == "") {
                     current_sha = latest_sha;
-                    new_sha = latest_sha;
                 } else {
-                    new_sha = latest_sha;
+                    var new_sha = latest_sha;
+                    if (current_sha != new_sha) {
+                        location.reload(true);
+                    }
                 }
             }).fail(function (dat, textStatus, error) {
                 var err = textStatus + ", " + error;
