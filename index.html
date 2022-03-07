@@ -36,6 +36,8 @@
             document.getElementById("assetPrice").innerHTML = asset.price;
             if (asset.priceWentDown) {
                 document.getElementById("assetPrice").style.color = "red";
+            } else {
+                document.getElementById("assetPrice").style.color = "green";
             }
             currentAsset++;
         }
@@ -53,7 +55,7 @@
             var uri = "https://api.coingecko.com/api/v3/simple/price?ids=" + assetName + "&vs_currencies=usd";
             $.getJSON(uri, function (data) {
                 var newPrice = data[assetName.toLowerCase()]["usd"].toFixed(2);
-                if (assetList[assetIndex].price > newPrice) {
+                if (Number(assetList[assetIndex].price.replace(/[^0-9.-]+/g, "")) > newPrice) {
                     assetList[assetIndex].priceWentDown = true;
                 } else {
                     assetList[assetIndex].priceWentDown = false;
