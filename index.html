@@ -15,7 +15,7 @@
             name: "Bitcoin",
             ticker: "BTC",
             price: "38,000",
-            priceWentDown: false
+            priceList: []
         }
         assetList.push(btcAsset);
 
@@ -23,7 +23,7 @@
             name: "Corn",
             ticker: "CORN",
             price: "0.15",
-            priceWentDown: false
+            priceList: []
         }
         assetList.push(cornAsset);
 
@@ -34,7 +34,10 @@
             var asset = assetList[currentAsset];
             document.getElementById("assetName").innerHTML = asset.name;
             document.getElementById("assetPrice").innerHTML = asset.price;
-            if (asset.priceWentDown) {
+
+            const sumofPrices = assetList[currentAsset].priceList.reduce((a, b) => a + b, 0);
+            const avgPrice = (sumofPrices / assetList[currentAsset].priceList.length) || 0;
+            if (Number(assetList[currentAsset].price.replace(/[^0-9.-]+/g, "")) < avgPrice) {
                 document.getElementById("assetPrice").style.color = "red";
             } else {
                 document.getElementById("assetPrice").style.color = "green";
@@ -42,7 +45,7 @@
             currentAsset++;
         }
 
-        setInterval(updateAssetPrices, 3600000); // 60 minutes
+        setInterval(updateAssetPrices, 3600000); // 3600000 = 60 minutes
         updateAssetPrices();
         function updateAssetPrices() {
             assetList.forEach(function (asset, i) {
@@ -55,11 +58,8 @@
             var uri = "https://api.coingecko.com/api/v3/simple/price?ids=" + assetName + "&vs_currencies=usd";
             $.getJSON(uri, function (data) {
                 var newPrice = data[assetName.toLowerCase()]["usd"].toFixed(2);
-                if (Number(assetList[assetIndex].price.replace(/[^0-9.-]+/g, "")) > newPrice) {
-                    assetList[assetIndex].priceWentDown = true;
-                } else {
-                    assetList[assetIndex].priceWentDown = false;
-                }
+                assetList[assetIndex].priceList.push(Number(newPrice));
+                assetList[assetIndex].priceList.splice(0, assetList[assetIndex].priceList.length - 23);
                 assetList[assetIndex].price = formatter.format(newPrice);
             }).fail(function (dat, textStatus, error) {
                 var err = textStatus + ", " + error;
