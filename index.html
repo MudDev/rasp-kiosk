@@ -13,16 +13,40 @@
 
         var btcAsset = {
             name: "Bitcoin",
+            logo: "https://assets.coingecko.com/coins/images/1/small/bitcoin.png",
             ticker: "BTC",
             price: "38,000",
+            decimalPlaces: 0,
             priceList: []
         }
         assetList.push(btcAsset);
 
+        var vabbleAsset = {
+            name: "Vabble",
+            logo: "https://assets.coingecko.com/coins/images/17508/small/vabble_tplogo_200_x_200.png",
+            ticker: "VAB",
+            price: "0.007",
+            decimalPlaces: 3,
+            priceList: []
+        }
+        assetList.push(vabbleAsset);
+
+        var landAsset = {
+            name: "Land",
+            logo: "https://arbiscan.io/token/images/farmland_32.png",
+            ticker: "0x629aa19df31882fac22d7f845ee8053c137a1741",
+            price: "0.03",
+            decimalPlaces: 2,
+            priceList: []
+        }
+        assetList.push(landAsset);
+
         var cornAsset = {
             name: "Corn",
-            ticker: "CORN",
-            price: "0.15",
+            logo: "https://arbiscan.io/token/images/farmlandcorn_32.png",
+            ticker: "0x968f56dcbb7d870ddfbc7ea053ce27ea50d1c0f0",
+            price: "0.05",
+            decimalPlaces: 2,
             priceList: []
         }
         assetList.push(cornAsset);
@@ -34,6 +58,7 @@
             var asset = assetList[currentAsset];
             document.getElementById("assetName").innerHTML = asset.name;
             document.getElementById("assetPrice").innerHTML = asset.price;
+            document.getElementById('assetImage').src = asset.logo;
 
             const sumofPrices = assetList[currentAsset].priceList.reduce((a, b) => a + b, 0);
             const avgPrice = (sumofPrices / assetList[currentAsset].priceList.length) || 0;
@@ -49,27 +74,50 @@
         updateAssetPrices();
         function updateAssetPrices() {
             assetList.forEach(function (asset, i) {
-                updateAssetPriceFromGecko(asset, i);
+                updateAssetPrice(asset, i);
             });
         }
 
-        function updateAssetPriceFromGecko(asset, assetIndex) {
+        function updateAssetPrice(asset, assetIndex) {
             var assetName = asset.name;
-            var uri = "https://api.coingecko.com/api/v3/simple/price?ids=" + assetName + "&vs_currencies=usd";
-            $.getJSON(uri, function (data) {
-                var newPrice = data[assetName.toLowerCase()]["usd"].toFixed(2);
-                assetList[assetIndex].priceList.push(Number(newPrice));
-                assetList[assetIndex].priceList.splice(0, assetList[assetIndex].priceList.length - 23);
-                assetList[assetIndex].price = formatter.format(newPrice);
-            }).fail(function (dat, textStatus, error) {
-                var err = textStatus + ", " + error;
-                console.log(err);
-            });
+            if (asset.name == 'Land' || asset.name == 'Corn') {
+                var uri = "https://api.thegraph.com/subgraphs/name/sushiswap/arbitrum-exchange";
+                var gql = '{"query":"{pairs(where: {id_in: [\\"' + asset.ticker + '\\"]}) { id token0 { symbol } token1 { symbol } reserve0 reserve1 reserveETH reserveUSD } }","variables":{}}';
+                $.post(uri, gql, function (data) {
+                    if (data) {
+                        var newPrice = 0;
+                        if (asset.name == 'Land') {
+                            newPrice = (data.data.pairs[0].reserveUSD / 2 / data.data.pairs[0].reserve0).toFixed(assetList[assetIndex].decimalPlaces);
+                        } else if (asset.name == 'Corn') {
+                            newPrice = (data.data.pairs[0].reserveUSD / 2 / data.data.pairs[0].reserve1).toFixed(assetList[assetIndex].decimalPlaces);
+                        }
+                        assetList[assetIndex].priceList.push(Number(newPrice));
+                        assetList[assetIndex].priceList.splice(0, assetList[assetIndex].priceList.length - 23);
+                        assetList[assetIndex].price = formatter.format(newPrice);
+                    }
+                }).fail(function (dat, textStatus, error) {
+                    var err = textStatus + ", " + error;
+                    console.log(err);
+                });
+            } else {
+                var uri = "https://api.coingecko.com/api/v3/simple/price?ids=" + assetName + "&vs_currencies=usd";
+                $.getJSON(uri, function (data) {
+                    var newPrice = data[assetName.toLowerCase()]["usd"].toFixed(assetList[assetIndex].decimalPlaces);
+                    assetList[assetIndex].priceList.push(Number(newPrice));
+                    assetList[assetIndex].priceList.splice(0, assetList[assetIndex].priceList.length - 23);
+                    assetList[assetIndex].price = formatter.format(newPrice);
+                }).fail(function (dat, textStatus, error) {
+                    var err = textStatus + ", " + error;
+                    console.log(err);
+                });
+            }
         }
 
         var formatter = new Intl.NumberFormat('en-US', {
             style: 'currency',
             currency: 'USD',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 10,
         });
 
         var current_sha = "";
@@ -115,7 +163,12 @@
 <body>
     <div>
         <div with="100%" style="text-align: center;">
-            <h3 id="assetName" class="display-3">LOADING ...</h3>
+            <div style="display: inline-block; margin-top: 40px;">
+                <img style="vertical-align: baseline; width: 75px; margin-right: 20px;" id="assetImage" src="">
+            </div>
+            <div style="display: inline-block;">
+                <h3 id="assetName" class="display-3">LOADING ...</h3>
+            </div>
         </div>
         <div with="100%" style="text-align: center;">
             <h2 id="assetPrice" class="display-1"></h2>
