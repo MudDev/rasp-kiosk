@@ -16,6 +16,9 @@ There is a simple index.html page that can be hosted by github pages that the ra
 
   - I picked up this display at amazon (https://www.amazon.com/dp/B083C12N57) then had to make a few modifications to fit the old raspi in the case, but looks nice mounted on the wall.
 
+### Install the LCD Drivers for the screen:
+
+ - Follow the instructions for the 3.5 screen (sudo ./LCD35-show) https://github.com/goodtft/LCD-show I forked it just incase the other repo goes down: (https://github.com/MudDev/LCD-show)
 
 ## ⌨ Setting up the raspi to automatically boot to page.
 
