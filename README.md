@@ -60,7 +60,7 @@ There is a simple index.html page that can be hosted by github pages that the ra
           xset s noblank # don't blank the video device
           matchbox-window-manager -use_titlebar no &
           unclutter &    # hide X mouse cursor unless mouse activated
-          chromium-browser --display=:0 --kiosk --incognito --window-position=0,0 https://muddev.github.io/rasp-kiosk/index.html
+          chromium-browser --disable-gpu --display=:0 --kiosk --incognito --window-position=0,0 https://muddev.github.io/rasp-kiosk/index.html
         ```
 
         Make the kiosk script file executable with the command `chmod 755 ~/kiosk`
@@ -75,12 +75,20 @@ There is a simple index.html page that can be hosted by github pages that the ra
         xinit /home/pi/kiosk -- vt$(fgconsole)
         ```
 
+    - Install lightdm
+      ```shell
+        sudo apt-get install lightdm
+      ```
+      
     - Configure boot and display with the raspi-config tool
-    
+
         From the command prompt on the Pi, enter the command `sudo raspi-config` which will open a text-based menu. Update the configuration:
         ```
-          - Advanced Options -> Disable overscan compensation.
-          - Boot Options -> Console Autologin [Yes]
+          - Display -> 
+                            Underscan - Off
+          - Boot Options -> 
+                            Desktop Autologin Desktop GUI
+                            Console Autologin
         ```
 
         Upon completing the above, select **<Finish>** and select **<Yes>** when prompted to reboot. If a display is connected, following the boot sequence, the Chromium browser should open in kiosk mode and display the specified webpage.
