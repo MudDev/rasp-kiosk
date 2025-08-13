@@ -23,33 +23,23 @@
 
         var vabbleAsset = {
             name: "Vabble",
-            logo: "https://assets.coingecko.com/coins/images/17508/small/vabble_tplogo_200_x_200.png",
-            ticker: "VAB",
-            price: "0.007",
+            logo: "https://assets.coingecko.com/coins/images/52126/standard/vabble.jpg",
+            ticker: "vabble-2",
+            price: "0.004",
             decimalPlaces: 3,
             priceList: []
         }
         assetList.push(vabbleAsset);
 
         var landAsset = {
-            name: "Land",
-            logo: "https://arbiscan.io/token/images/farmland_32.png",
-            ticker: "0x629aa19df31882fac22d7f845ee8053c137a1741",
-            price: "0.03",
+            name: "Solana",
+            logo: "https://assets.coingecko.com/coins/images/4128/standard/solana.png",
+            ticker: "solana",
+            price: "100.00",
             decimalPlaces: 2,
             priceList: []
         }
         assetList.push(landAsset);
-
-        var cornAsset = {
-            name: "Corn",
-            logo: "https://arbiscan.io/token/images/farmlandcorn_32.png",
-            ticker: "0x968f56dcbb7d870ddfbc7ea053ce27ea50d1c0f0",
-            price: "0.05",
-            decimalPlaces: 2,
-            priceList: []
-        }
-        assetList.push(cornAsset);
 
         setInterval(loopAsset, 10000);
         var currentAsset = 0;
