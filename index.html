@@ -14,22 +14,12 @@
         var btcAsset = {
             name: "Bitcoin",
             logo: "https://assets.coingecko.com/coins/images/1/small/bitcoin.png",
-            ticker: "BTC",
+            ticker: "bitcoin",
             price: "38,000",
             decimalPlaces: 0,
             priceList: []
         }
         assetList.push(btcAsset);
-
-        var vabbleAsset = {
-            name: "Vabble",
-            logo: "https://assets.coingecko.com/coins/images/52126/standard/vabble.jpg",
-            ticker: "vabble-2",
-            price: "0.004",
-            decimalPlaces: 3,
-            priceList: []
-        }
-        assetList.push(vabbleAsset);
 
         var landAsset = {
             name: "Solana",
@@ -40,6 +30,16 @@
             priceList: []
         }
         assetList.push(landAsset);
+
+        var vabbleAsset = {
+            name: "Vabble",
+            logo: "https://assets.coingecko.com/coins/images/52126/standard/vabble.jpg",
+            ticker: "vabble-2",
+            price: "0.004",
+            decimalPlaces: 3,
+            priceList: []
+        }
+        assetList.push(vabbleAsset);
 
         setInterval(loopAsset, 10000);
         var currentAsset = 0;
@@ -69,7 +69,7 @@
         }
 
         function updateAssetPrice(asset, assetIndex) {
-            var assetName = asset.name;
+            var assetId = asset.ticker;
             if (asset.name == 'Land' || asset.name == 'Corn') {
                 var uri = "https://api.thegraph.com/subgraphs/name/sushiswap/arbitrum-exchange";
                 var gql = '{"query":"{pairs(where: {id_in: [\\"' + asset.ticker + '\\"]}) { id token0 { symbol } token1 { symbol } reserve0 reserve1 reserveETH reserveUSD } }","variables":{}}';
@@ -90,9 +90,9 @@
                     console.log(err);
                 });
             } else {
-                var uri = "https://api.coingecko.com/api/v3/simple/price?ids=" + assetName + "&vs_currencies=usd";
+                var uri = "https://api.coingecko.com/api/v3/simple/price?ids=" + assetId + "&vs_currencies=usd";
                 $.getJSON(uri, function (data) {
-                    var newPrice = data[assetName.toLowerCase()]["usd"].toFixed(assetList[assetIndex].decimalPlaces);
+                    var newPrice = data[assetId.toLowerCase()]["usd"].toFixed(assetList[assetIndex].decimalPlaces);
                     assetList[assetIndex].priceList.push(Number(newPrice));
                     assetList[assetIndex].priceList.splice(0, assetList[assetIndex].priceList.length - 23);
                     assetList[assetIndex].price = formatter.format(newPrice);
